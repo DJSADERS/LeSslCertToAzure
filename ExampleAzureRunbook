@@ -36,6 +36,9 @@ $ErrorActionPreference = 'Stop'
 
 $password = convertto-securestring "Password" -asplaintext -force
 
+$dnsarray=@()
+$dnsarray+="www"
+
 Deploy-LeSslCertToAzureStaging `
             -appGatewayRgName 'ApplicationGatewayResourceGroupName' `
             -appGatewayName 'ApplicationGatewayName' `
@@ -44,7 +47,6 @@ Deploy-LeSslCertToAzureStaging `
             -certPassword $password `
             -azureDnsZone 'DomainDnsZoneName' `
             -dnsAlias 'RootDomainAlias' `
-            -wwwAlias 'wwwRootDomain' `
-            -dnsAlias2 'wwwDomainAlias' `
+            -subDomains $dnsarray `
             -azureDnsZoneResourceGroup 'DnsResourceGroup' `
             -registrationEmail 'AlertEmailAddress'
