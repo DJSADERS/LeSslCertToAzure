@@ -1,4 +1,4 @@
-﻿##############################################################################
+##############################################################################
 #.SYNOPSIS
 # Creates a SSL/TLS Certificate with Let's Encrypt Service 
 # 
@@ -71,11 +71,9 @@ Function Deploy-LeSslCertToAzureStaging() {
         [Parameter(Mandatory=$true)]
         $azureDnsZoneResourceGroup,
 		[Parameter(Mandatory=$true)]
-        $wwwAlias,
+        $subDomains,
         [Parameter(Mandatory=$true)]
         $dnsAlias,
-		[Parameter(Mandatory=$true)]
-        $dnsAlias2,
         [Parameter(Mandatory=$true)]
         $registrationEmail
     )
@@ -93,7 +91,7 @@ Function Deploy-LeSslCertToAzureStaging() {
     # Create the Host name to put the _acme-challenge. prefix on.
     # if certing www.mydomain.com, would create TXT record for _acme-challenge.www.mydomain.com.
  
-    $acmeValidationDnsHostName = '_acme-challenge.'  + $domainToCert.Replace(".$azureDnsZone",'')
+    $acmeValidationDnsHostName = '_acme-challenge'
   
     $appGwHttpsListenerName = 'appGatewayHttpsListener'
     $appGatewayFrontEndHttpsPortName = 'myFrontendHttpsPort'
@@ -136,7 +134,6 @@ Function Deploy-LeSslCertToAzureStaging() {
         # No Identifier, create one.
         Write-Verbose "It does not exist. Creating a new Identifier alias $dnsAlias for $domainToCert."
         New-ACMEIdentifier -Dns $domainToCert -Alias $dnsAlias
-		New-ACMEIdentifier -Dns $wwwAlias -Alias $dnsAlias2
         Write-Verbose "Requesting ACME DNS TXT Record Challenge..."
         $authorizationState = Complete-ACMEChallenge $dnsAlias -ChallengeType dns-01 -Handler manual
         $dnsTxtValue = ($authorizationState.Challenges | Where-Object {$_.Type -eq "dns-01"}).Challenge.RecordValue
@@ -229,7 +226,7 @@ Function Deploy-LeSslCertToAzureStaging() {
         catch{}
         if ($dnsCertCreated -eq $null) {
             Write-Verbose "Creating new certificate $dnsCertAlias to sign."
-            New-ACMECertificate $dnsAlias -Generate -AlternativeIdentifierRefs dnsAlias2 -Alias $dnsCertAlias
+            New-ACMECertificate $dnsAlias -Generate -AlternativeIdentifierRefs $subDomains -Alias $dnsCertAlias
             Write-Verbose "Submiting $dnsCertAlias certificate for signature."
             Submit-ACMECertificate $dnsCertAlias
         }
