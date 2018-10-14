@@ -45,6 +45,6 @@ Deploy-LeSslCertToAzureStaging `
             -azureDnsZone 'DomainDnsZoneName' `
             -dnsAlias 'RootDomainAlias' `
             -wwwAlias 'wwwRootDomain' `
-            -dnsAlias 'wwwDomainAlias' `
+            -dnsAlias2 'wwwDomainAlias' `
             -azureDnsZoneResourceGroup 'DnsResourceGroup' `
             -registrationEmail 'AlertEmailAddress'
